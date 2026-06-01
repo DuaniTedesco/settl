@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block content %}
+<div class="container">
+
+  <!-- Cabeçalho -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:14px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:13px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">
+        {% if group.type == 'republica' %}🏠{% elif group.type == 'viagem' %}✈️{% elif group.type == 'familia' %}👨‍👩‍👧{% elif group.type == 'coliving' %}🏢{% else %}👥{% endif %}
+      </div>
+      <div>
+        <h1 class="page-title">{{ group.name }}</h1>
+        <p class="page-sub">{{ group.get_type_display }} · {{ members.count }} membro{% if members.count != 1 %}s{% endif %}</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="/groups/{{ group.pk }}/dashboard/" class="btn btn-secondary">📊 Dashboard</a>
+      <a href="/groups/{{ group.pk }}/expenses/new/" class="btn btn-primary">+ Despesa</a>
+      <a href="/groups/{{ group.pk }}/settle/" class="btn btn-secondary">Registrar acerto</a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:360px 1fr;gap:1.25rem;align-items:start;">
+
+    <!-- COLUNA ESQUERDA -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+      <!-- CARD: Saldos líquidos com barra visual -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Saldos do grupo</h2>
+          {% if balances.net %}
+          <span style="font-size:11px;color:var(--text-hint);">pago − deve</span>
+          {% endif %}
+        </div>
+
+        {% if balances.net %}
+          {% for user_obj, amount in balances.net.items %}
+          <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar">{{ user_obj.avatar_initials }}</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;">{{ user_obj.get_full_name }}</div>
+                  <div style="font-size:11px;color:var(--text-hint);">
+                    {% if amount > 0 %}a receber{% elif amount < 0 %}a pagar{% else %}quite{% endif %}
+                  </div>
+                </div>
+              </div>
+              <span style="font-size:15px;font-weight:700;letter-spacing:-.3px;
+                {% if amount > 0 %}color:var(--success){% elif amount < 0 %}color:var(--danger){% else %}color:var(--text-hint){% endif %}">
+                {% if amount > 0 %}+{% endif %}R$ {{ amount|floatformat:2 }}
+              </span>
+            </div>
+            <!-- barra de progresso visual -->
+            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+              {% if amount > 0 %}
+              <div style="height:100%;background:var(--success);border-radius:2px;width:100%;"></div>
+              {% elif amount < 0 %}
+              <div style="height:100%;background:var(--danger);border-radius:2px;width:100%;"></div>
+              {% else %}
+              <div style="height:100%;background:var(--border-strong);border-radius:2px;width:100%;"></div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- total movimentado -->
+          <div style="padding-top:10px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-hint);">
+            <span>Total movimentado</span>
+            <span style="font-weight:500;color:var(--text-secondary);">
+              R$ {% with total=0 %}{% for u, a in balances.net.items %}{% if a > 0 %}{{ a|floatformat:2 }}{% endif %}{% endfor %}{% endwith %}
+            </span>
+          </div>
+
+        {% else %}
+          <div class="empty" style="padding:1.5rem 0;">
+            <div style="font-size:1.5rem;margin-bottom:8px;">📊</div>
+            <p style="font-size:13px;">Nenhuma despesa lançada ainda.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- CARD: Quem paga pra quem — destaque visual -->
+      {% if balances.transactions %}
+      <div class="card" style="border-color:#fde68a;background:var(--warning-light);">
+        <div class="card-header" style="margin-bottom:1rem;">
+          <h2 class="card-title" style="color:#92400e;">💸 Transferências necessárias</h2>
+          <span class="badge badge-yellow">{{ balances.transactions|length }} acerto{% if balances.transactions|length != 1 %}s{% endif %}</span>
+        </div>
+
+        {% for t in balances.transactions %}
+        <div style="background:white;border:1px solid #fde68a;border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;">
+          <!-- De → Para -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="text-align:center;">
+              <div class="avatar" style="background:#fee2e2;color:var(--danger);margin:0 auto 4px;">{{ t.from.avatar_initials }}</div>
+              <div style="font-size:12px;font-weight:500;color:var(--text);">{{ t.from.first_name }}</div>
+            </div>
+            <div style="flex:1;text-align:center;">
+              <div style="font-size:18px;font-weight:800;font-family:var(--font-display);color:var(--danger);letter-spacing:-.5px;">R$ {{ t.amount|floatformat:2 }}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:2px;">
+                <div style="flex:1;height:1.5px;background:#fde68a;"></div>
+                <span style="font-size:16px;">→</span>
+                <div style="flex:1;height:1.5px;background:#fde68a;"></div>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <div class="avatar" style="background:var(--success-light);color:var(--success);margin:0 auto 4px;">{{ t.to.avatar_initials }}</div>
+              <div style="font-size:12px;font-weight:500;color:var(--text);">{{ t.to.first_name }}</div>
+            </div>
+          </div>
+          <!-- Pix do credor -->
+          {% if t.to.pix_key %}
+          <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:var(--radius-sm);padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Chave Pix de {{ t.to.first_name }}</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);font-family:monospace;">{{ t.to.pix_key }}</div>
+            </div>
+            <button onclick="copyText('{{ t.to.pix_key }}', this)" class="btn btn-xs btn-secondary" style="white-space:nowrap;flex-shrink:0;">Copiar</button>
+          </div>
+          {% else %}
+          <div style="font-size:12px;color:var(--text-hint);text-align:center;padding:4px 0;">
+            {{ t.to.first_name }} não cadastrou chave Pix ainda
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <a href="/groups/{{ group.pk }}/settle/" class="btn btn-sm" style="width:100%;justify-content:center;background:#92400e;color:white;border:none;margin-top:4px;">
+          Registrar um acerto →
+        </a>
+      </div>
+      {% else %}
+        {% if balances.net %}
+        <div class="card" style="border-color:#bbf7d0;background:var(--success-light);text-align:center;padding:1.5rem;">
+          <div style="font-size:1.75rem;margin-bottom:8px;">🎉</div>
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--success);margin-bottom:4px;">Tudo acertado!</div>
+          <div style="font-size:13px;color:#166534;">Nenhuma transferência necessária.</div>
+        </div>
+        {% endif %}
+      {% endif %}
+
+      <!-- CARD: Membros -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Membros</h2>
+          <span style="font-size:12px;color:var(--text-hint);">{{ members.count }} no grupo</span>
+        </div>
+        {% for m in members %}
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);">
+          <div class="avatar">{{ m.user.avatar_initials }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:500;">{{ m.user.get_full_name }}</div>
+            <div style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              {{ m.user.email }}
+              {% if m.user.pix_key %} · <span style="color:var(--success);">Pix ✓</span>{% endif %}
+            </div>
+          </div>
+          {% if m.role == 'admin' %}<span class="badge badge-accent">admin</span>{% endif %}
+        </div>
+        {% endfor %}
+        <div style="margin-top:1rem;">
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:7px;font-weight:500;">Convidar membros</p>
+          <div class="invite-box">
+            <input type="text" id="invite-url" value="{{ invite_link }}" readonly>
+            <button onclick="copyInvite(event)" class="btn btn-xs btn-secondary">Copiar link</button>
+          </div>
+        </div>
+        <div style="margin-top:1rem;text-align:right;">
+          <a href="/groups/{{ group.pk }}/leave/" style="font-size:12px;color:var(--text-hint);">Sair do grupo</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUNA DIREITA: despesas -->
+    <div class="card" style="align-self:start;">
+      <div class="card-header">
+        <h2 class="card-title">Despesas</h2>
+        <a href="/groups/{{ group.pk }}/expenses/new/" class="btn btn-xs btn-primary">+ adicionar</a>
+      </div>
+
+      {% if expenses %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Pago por</th>
+              <th>Data</th>
+              <th style="text-align:right;">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for expense in expenses %}
+          <tr onclick="window.location='/expenses/{{ expense.pk }}/'" style="cursor:pointer;">
+            <td>
+              <div style="font-weight:500;font-size:14px;">{{ expense.description }}</div>
+              {% if expense.recurrence != 'none' %}
+              <span class="badge badge-primary" style="font-size:10px;margin-top:3px;">{{ expense.get_recurrence_display }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:15px;">{% if expense.category == 'aluguel' %}🏠{% elif expense.category == 'alimentacao' %}🍽️{% elif expense.category == 'energia' %}⚡{% elif expense.category == 'agua' %}💧{% elif expense.category == 'internet' %}📶{% elif expense.category == 'gas' %}🔥{% elif expense.category == 'limpeza' %}🧹{% elif expense.category == 'transporte' %}🚗{% elif expense.category == 'lazer' %}🎉{% else %}📋{% endif %}</span>
+                <span style="font-size:13px;color:var(--text-secondary);">{{ expense.get_category_display }}</span>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="avatar" style="width:24px;height:24px;font-size:10px;">{{ expense.paid_by.avatar_initials }}</div>
+                <span style="font-size:13px;">{{ expense.paid_by.first_name }}</span>
+              </div>
+            </td>
+            <td style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">{{ expense.date|date:"d/m/Y" }}</td>
+            <td style="text-align:right;font-weight:600;font-size:14px;white-space:nowrap;">R$ {{ expense.amount|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="font-size:12px;color:var(--text-hint);padding-top:12px;">{{ expenses|length }} despesa{% if expenses|length != 1 %}s{% endif %} exibida{% if expenses|length != 1 %}s{% endif %}</td>
+              <td style="text-align:right;font-weight:700;font-size:14px;padding-top:12px;color:var(--text);">
+                R$ {% with total=expenses %}{% for e in total %}{{ e.amount|floatformat:2 }}{% if not forloop.last %}+{% endif %}{% endfor %}{% endwith %}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      {% else %}
+      <div class="empty" style="padding:2.5rem 0;">
+        <div class="empty-icon">📋</div>
+        <h3>Nenhuma despesa ainda</h3>
+        <p>Adicione a primeira despesa do grupo.</p>
+        <a href="/groups/{{ group.pk }}/expenses/new/" class="btn btn-sm btn-primary" style="margin-top:.75rem;">Adicionar despesa</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function copyInvite(e) {
+  document.getElementById('invite-url').select();
+  document.execCommand('copy');
+  const btn = e.target;
+  const orig = btn.textContent;
+  btn.textContent = 'Copiado!';
+  setTimeout(() => btn.textContent = orig, 2000);
+}
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+</script>
+{% endblock %}

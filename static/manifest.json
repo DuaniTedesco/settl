@@ -1,0 +1,35 @@
+{
+  "name": "Settl — Acerte as contas",
+  "short_name": "Settl",
+  "description": "Gerencie despesas da república sem drama. Divida, acerte e pronto.",
+  "start_url": "/dashboard/",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#0e0e0c",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["finance", "utilities"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova despesa",
+      "short_name": "Despesa",
+      "url": "/dashboard/",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}

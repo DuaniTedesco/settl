@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Criar conta{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:2rem;">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2.5C5 2.5 3 4.5 3 7c0 1.8 1 3.2 2.5 3.8L5 13h6l-.5-2.2C12 10.2 13 8.8 13 7c0-2.5-2-4.5-5-4.5z" fill="#c8f542"/>
+          <path d="M6 13h4v1.5H6V13z" fill="#c8f542" opacity=".6"/>
+        </svg>
+      </div>
+      <span class="logo-text">Settl</span>
+    </a>
+    <h1 class="auth-title">Criar conta</h1>
+    <p class="auth-sub">Acerte as contas da sua república sem drama.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+          {% if form.first_name.errors %}<p class="form-error">{{ form.first_name.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div class="form-group">
+          <label>Sobrenome</label>
+          <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+          {% if form.last_name.errors %}<p class="form-error">{{ form.last_name.errors|join:", " }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" name="email" value="{{ form.email.value|default:'' }}" required>
+        {% if form.email.errors %}<p class="form-error">{{ form.email.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Chave Pix <span style="font-weight:400;color:var(--text-hint)">(opcional)</span></label>
+        <input type="text" name="pix_key" value="{{ form.pix_key.value|default:'' }}" placeholder="CPF, e-mail, telefone ou chave aleatória">
+        <p class="form-hint">Aparece para o grupo na hora do acerto.</p>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" name="password1" required>
+        {% if form.password1.errors %}<p class="form-error">{{ form.password1.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" name="password2" required>
+        {% if form.password2.errors %}<p class="form-error">{{ form.password2.errors|join:", " }}</p>{% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">Criar conta</button>
+    </form>
+    <p style="margin-top:1.5rem;text-align:center;font-size:14px;color:var(--text-secondary);">
+      Já tem conta? <a href="/accounts/login/" style="font-weight:500;">Entrar</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

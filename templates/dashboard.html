@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 class="page-title">Olá, {{ user.first_name }} 👋</h1>
+      <p class="page-sub">Resumo dos seus grupos</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <a href="/groups/enter/" class="btn btn-secondary">🔗 Entrar com link</a>
+      <a href="/groups/new/" class="btn btn-primary">+ Novo grupo</a>
+    </div>
+  </div>
+
+  {% if pending_settlements %}
+  <div class="alert alert-warning" style="margin-bottom:1.25rem;">
+    <div class="alert-title" style="color:#92400e;">⚠️ Acertos aguardando sua confirmação</div>
+    {% for s in pending_settlements %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #fde68a;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:14px;">
+        <span style="font-weight:500;">{{ s.payer.get_full_name }}</span>
+        <span style="color:var(--text-secondary);"> pagou </span>
+        <span style="font-weight:600;color:var(--success);">R$ {{ s.amount|floatformat:2 }}</span>
+        <span style="color:var(--text-secondary);"> · {{ s.group.name }}</span>
+      </div>
+      <a href="/settlements/{{ s.pk }}/confirm/" class="btn btn-xs btn-secondary">Revisar →</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if my_settlements %}
+  <div class="alert alert-info" style="margin-bottom:1.25rem;">
+    <div class="alert-title" style="color:var(--primary);">⏳ Seus acertos aguardando confirmação</div>
+    {% for s in my_settlements %}
+    <div style="padding:6px 0;font-size:14px;color:var(--text-secondary);">
+      Você declarou pagar <strong style="color:var(--text);">R$ {{ s.amount|floatformat:2 }}</strong> para {{ s.receiver.get_full_name }} · <em>{{ s.group.name }}</em>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Meus grupos</h2>
+        <a href="/groups/" style="font-size:13px;color:var(--text-secondary);">Ver todos →</a>
+      </div>
+      {% if memberships %}
+        {% for m in memberships %}
+        <a href="/groups/{{ m.group.pk }}/" class="row-link">
+          <div style="width:36px;height:36px;border-radius:9px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">
+            {% if m.group.type == 'republica' %}🏠{% elif m.group.type == 'viagem' %}✈️{% elif m.group.type == 'familia' %}👨‍👩‍👧{% elif m.group.type == 'coliving' %}🏢{% else %}👥{% endif %}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.group.name }}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">{{ m.group.get_type_display }}</div>
+          </div>
+          {% if m.role == 'admin' %}<span class="badge badge-accent">admin</span>{% endif %}
+        </a>
+        {% endfor %}
+      {% else %}
+      <div class="empty" style="padding:1.5rem 0;">
+        <p style="font-size:14px;">Você não está em nenhum grupo ainda.</p>
+        <a href="/groups/new/" class="btn btn-sm btn-primary" style="margin-top:.75rem;">Criar grupo</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Despesas recentes</h2>
+      </div>
+      {% if recent_expenses %}
+        {% for e in recent_expenses %}
+        <a href="/expenses/{{ e.pk }}/" class="row-link">
+          <div class="cat-icon">
+            {% if e.category == 'aluguel' %}🏠{% elif e.category == 'alimentacao' %}🍽️{% elif e.category == 'energia' %}⚡{% elif e.category == 'agua' %}💧{% elif e.category == 'internet' %}📶{% elif e.category == 'gas' %}🔥{% elif e.category == 'limpeza' %}🧹{% elif e.category == 'transporte' %}🚗{% elif e.category == 'lazer' %}🎉{% else %}📋{% endif %}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ e.description }}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">{{ e.group.name }} · {{ e.date|date:"d/m" }}</div>
+          </div>
+          <div style="font-weight:600;font-size:14px;white-space:nowrap;">R$ {{ e.amount|floatformat:2 }}</div>
+        </a>
+        {% endfor %}
+      {% else %}
+      <div style="padding:1.5rem 0;text-align:center;color:var(--text-secondary);font-size:14px;">Nenhuma despesa ainda.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

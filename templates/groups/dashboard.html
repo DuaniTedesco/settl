@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — {{ group.name }}{% endblock %}
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+{% endblock %}
+{% block content %}
+<div class="container">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;">
+    <div>
+      <a href="/groups/{{ group.pk }}/" style="font-size:13px;color:var(--text-secondary);">← {{ group.name }}</a>
+      <h1 class="page-title" style="margin-top:4px;">Dashboard de despesas</h1>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <select id="sel-period" onchange="render()" style="font-size:13px;padding:7px 12px;border-radius:var(--radius-pill);border:1px solid var(--border-strong);background:var(--surface);">
+        <option value="3">Últimos 3 meses</option>
+        <option value="6" selected>Últimos 6 meses</option>
+        <option value="12">Últimos 12 meses</option>
+        <option value="0">Tudo</option>
+      </select>
+      <select id="sel-member" onchange="render()" style="font-size:13px;padding:7px 12px;border-radius:var(--radius-pill);border:1px solid var(--border-strong);background:var(--surface);">
+        <option value="all">Todos os membros</option>
+        {% for m in members %}
+        <option value="{{ m.user.pk }}">{{ m.user.get_full_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Métricas -->
+  <div class="stats" id="metrics-row" style="margin-bottom:1.25rem;"></div>
+
+  <!-- Gráficos linha 1 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Distribuição por categoria</h2></div>
+      <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;font-size:12px;"></div>
+      <div style="position:relative;width:100%;height:210px;">
+        <canvas id="donutChart" role="img" aria-label="Rosca de distribuição por categoria"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Ranking de categorias</h2></div>
+      <div id="rank-list"></div>
+    </div>
+  </div>
+
+  <!-- Gráfico de linha -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><h2 class="card-title">Evolução mensal por categoria</h2></div>
+    <div id="line-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;font-size:12px;"></div>
+    <div style="position:relative;width:100%;height:230px;">
+      <canvas id="lineChart" role="img" aria-label="Linha de evolução mensal por categoria"></canvas>
+    </div>
+  </div>
+
+  <!-- Gráficos linha 2 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Total gasto por membro</h2></div>
+      <div style="position:relative;width:100%;height:170px;">
+        <canvas id="memberChart" role="img" aria-label="Barras horizontais por membro"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Total mensal</h2></div>
+      <div style="position:relative;width:100%;height:170px;">
+        <canvas id="monthChart" role="img" aria-label="Barras de total mensal"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const RAW = {{ expenses_json|safe }};
+
+const CAT_LABELS = {
+  aluguel:'Aluguel', energia:'Energia', internet:'Internet', agua:'Água',
+  gas:'Gás', alimentacao:'Alimentação', limpeza:'Limpeza',
+  manutencao:'Manutenção', transporte:'Transporte', lazer:'Lazer', outro:'Outro'
+};
+const CAT_COLORS = {
+  aluguel:'#3B6D11', energia:'#854F0B', internet:'#185FA5', agua:'#085041',
+  gas:'#993C1D', alimentacao:'#534AB7', limpeza:'#0F6E56',
+  manutencao:'#72243E', transporte:'#3C3489', lazer:'#A32D2D', outro:'#888780'
+};
+
+const ALL_MONTHS = [...new Set(RAW.map(r=>r.month))].sort();
+
+function fmt(v){ return 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+let donutChart, lineChart, memberChart, monthChart;
+
+function destroyAll(){
+  [donutChart,lineChart,memberChart,monthChart].forEach(c => { if(c) c.destroy(); });
+}
+
+function render(){
+  destroyAll();
+  const period = parseInt(document.getElementById('sel-period').value) || 9999;
+  const member = document.getElementById('sel-member').value;
+  const cutoff = period === 0 ? '0000-00' : ALL_MONTHS[Math.max(0, ALL_MONTHS.length - period)];
+
+  let data = RAW.filter(r => r.month >= cutoff);
+  if(member !== 'all') data = data.filter(r => r.payer_id == member);
+
+  const filteredMonths = [...new Set(data.map(r=>r.month))].sort();
+
+  const byCat = {};
+  data.forEach(r => { byCat[r.cat] = (byCat[r.cat]||0) + parseFloat(r.amount); });
+  const catsSorted = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+  const total = catsSorted.reduce((s,[,v]) => s+v, 0);
+  const topCats = catsSorted.slice(0,6).map(([k])=>k);
+
+  const byMember = {};
+  data.forEach(r => { byMember[r.payer_name] = (byMember[r.payer_name]||0) + parseFloat(r.amount); });
+  const byMonth = {};
+  data.forEach(r => { byMonth[r.month] = (byMonth[r.month]||0) + parseFloat(r.amount); });
+
+  const avgMonthly = filteredMonths.length ? total / filteredMonths.length : 0;
+  const maxCat = catsSorted[0];
+  const expCount = data.length;
+
+  document.getElementById('metrics-row').innerHTML = `
+    <div class="stat"><div class="stat-label">Total no período</div><div class="stat-value">${fmt(total)}</div></div>
+    <div class="stat"><div class="stat-label">Média mensal</div><div class="stat-value">${fmt(avgMonthly)}</div></div>
+    <div class="stat"><div class="stat-label">Maior categoria</div><div class="stat-value" style="font-size:16px">${maxCat ? CAT_LABELS[maxCat[0]] : '-'}</div></div>
+    <div class="stat"><div class="stat-label">Despesas</div><div class="stat-value">${expCount}</div></div>
+  `;
+
+  const donutColors = catsSorted.slice(0,7).map(([k])=>CAT_COLORS[k]||'#888');
+  const donutLabels = catsSorted.slice(0,7).map(([k])=>CAT_LABELS[k]||k);
+  const donutVals   = catsSorted.slice(0,7).map(([,v])=>Math.round(v*100)/100);
+  if(catsSorted.length > 7){
+    donutLabels.push('Outros');
+    donutVals.push(Math.round(catsSorted.slice(7).reduce((s,[,v])=>s+v,0)*100)/100);
+    donutColors.push('#B4B2A9');
+  }
+
+  document.getElementById('donut-legend').innerHTML = donutLabels.map((l,i)=>
+    `<span style="display:flex;align-items:center;gap:4px;color:var(--text-secondary);">
+      <span style="width:9px;height:9px;border-radius:2px;background:${donutColors[i]};flex-shrink:0"></span>${l}
+    </span>`).join('');
+
+  donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels: donutLabels, datasets:[{ data: donutVals, backgroundColor: donutColors, borderWidth:2, borderColor:'#fff', hoverOffset:6 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${fmt(ctx.parsed)} (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } }
+  });
+
+  const rankMax = catsSorted[0] ? catsSorted[0][1] : 1;
+  document.getElementById('rank-list').innerHTML = catsSorted.slice(0,8).map(([k,v]) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:5px;min-width:100px;font-size:13px;color:var(--text-secondary);">
+        <span style="width:8px;height:8px;border-radius:50%;background:${CAT_COLORS[k]||'#888'};flex-shrink:0"></span>
+        ${CAT_LABELS[k]||k}
+      </div>
+      <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="width:${(v/rankMax*100).toFixed(1)}%;height:100%;border-radius:3px;background:${CAT_COLORS[k]||'#888'};"></div>
+      </div>
+      <div style="font-size:13px;font-weight:500;min-width:80px;text-align:right;">${fmt(v)}</div>
+    </div>`).join('');
+
+  const monthLabels = filteredMonths.map(m => {
+    const [y,mo] = m.split('-');
+    return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y.slice(2);
+  });
+
+  const lineDatasets = topCats.map(cat => ({
+    label: CAT_LABELS[cat]||cat,
+    data: filteredMonths.map(mo => {
+      const s = data.filter(r=>r.month===mo && r.cat===cat).reduce((acc,r)=>acc+parseFloat(r.amount),0);
+      return Math.round(s*100)/100;
+    }),
+    borderColor: CAT_COLORS[cat]||'#888',
+    backgroundColor: (CAT_COLORS[cat]||'#888')+'22',
+    borderWidth:2, pointRadius:3, pointHoverRadius:5, tension:0.3, fill:false
+  }));
+
+  document.getElementById('line-legend').innerHTML = topCats.map(k =>
+    `<span style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);">
+      <span style="width:9px;height:9px;border-radius:2px;background:${CAT_COLORS[k]};flex-shrink:0"></span>${CAT_LABELS[k]||k}
+    </span>`).join('');
+
+  lineChart = new Chart(document.getElementById('lineChart'), {
+    type:'line',
+    data: { labels: monthLabels, datasets: lineDatasets },
+    options: { responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+      scales:{ x:{ticks:{font:{size:11},autoSkip:true,maxTicksLimit:8}}, y:{ticks:{font:{size:11}, callback: v=>'R$'+v.toLocaleString('pt-BR')}} } }
+  });
+
+  const mbrSorted = Object.entries(byMember).sort((a,b)=>b[1]-a[1]);
+  const mbrColors = ['#3B6D11','#185FA5','#854F0B','#534AB7','#085041','#993C1D'];
+  memberChart = new Chart(document.getElementById('memberChart'), {
+    type:'bar',
+    data:{ labels: mbrSorted.map(([k])=>k), datasets:[{ data: mbrSorted.map(([,v])=>Math.round(v*100)/100), backgroundColor: mbrSorted.map((_,i)=>mbrColors[i%mbrColors.length]), borderRadius:4, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label: ctx=>` ${fmt(ctx.parsed.x)}`}}},
+      scales:{ x:{ticks:{font:{size:11}, callback:v=>'R$'+v.toLocaleString('pt-BR')}}, y:{ticks:{font:{size:11}}} } }
+  });
+
+  const monthTotals = filteredMonths.map(mo => Math.round((byMonth[mo]||0)*100)/100);
+  monthChart = new Chart(document.getElementById('monthChart'), {
+    type:'bar',
+    data:{ labels: monthLabels, datasets:[{ data: monthTotals, backgroundColor:'#185FA5', borderRadius:4, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label: ctx=>` ${fmt(ctx.parsed.y)}`}}},
+      scales:{ x:{ticks:{font:{size:11},autoSkip:true,maxTicksLimit:8}}, y:{ticks:{font:{size:11}, callback:v=>'R$'+v.toLocaleString('pt-BR')}} } }
+  });
+}
+
+render();
+</script>
+{% endblock %}

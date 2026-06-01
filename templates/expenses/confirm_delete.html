@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Excluir despesa{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div class="card" style="max-width:440px;margin:4rem auto;">
+    <h1 class="page-title" style="margin-bottom:.75rem;">Excluir "{{ expense.description }}"?</h1>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:14px;">
+      Esta ação não pode ser desfeita. O valor de <strong>R$ {{ expense.amount|floatformat:2 }}</strong> será removido dos saldos do grupo.
+    </p>
+    <div style="display:flex;gap:8px;">
+      <form method="post">{% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, excluir</button>
+      </form>
+      <a href="/expenses/{{ expense.pk }}/" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

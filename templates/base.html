@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Settl{% endblock %} — Acerte as contas sem drama</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/main.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0e0e0c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Settl">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="nav">
+  <a href="/dashboard/" class="nav-brand">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 2.5C5 2.5 3 4.5 3 7c0 1.8 1 3.2 2.5 3.8L5 13h6l-.5-2.2C12 10.2 13 8.8 13 7c0-2.5-2-4.5-5-4.5z" fill="#c8f542"/>
+        <path d="M6 13h4v1.5H6V13z" fill="#c8f542" opacity=".6"/>
+      </svg>
+    </div>
+    <span class="logo-text">Settl</span>
+  </a>
+  <div class="nav-links">
+    <a href="/groups/">Grupos</a>
+    <a href="/accounts/profile/">
+      <div class="avatar" title="{{ user.get_full_name }}">{{ user.avatar_initials }}</div>
+    </a>
+    <a href="/accounts/logout/" class="btn btn-sm btn-secondary" style="margin-left:4px;">Sair</a>
+  </div>
+</nav>
+{% endif %}
+
+<main>
+  {% if messages %}
+  <div class="container" style="padding-bottom:0;padding-top:1rem;">
+    <ul class="messages">
+      {% for msg in messages %}
+      <li class="message {{ msg.tags }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/js/sw.js')
+      .then(reg => {
+        console.log('[Settl PWA] Service Worker registrado:', reg.scope);
+
+        // Solicitar permissão de notificação após login
+        {% if user.is_authenticated %}
+        if ('Notification' in window && Notification.permission === 'default') {
+          setTimeout(() => {
+            Notification.requestPermission().then(p => {
+              console.log('[Settl PWA] Notificações:', p);
+            });
+          }, 5000);
+        }
+        {% endif %}
+      })
+      .catch(err => console.log('[Settl PWA] Erro no SW:', err));
+  });
+}
+</script>
+</body>
+</html>

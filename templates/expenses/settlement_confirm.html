@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Confirmar acerto{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <h1 class="page-title" style="margin-bottom:1.5rem;">Confirmar recebimento</h1>
+  <div class="card">
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:1.25rem;margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <div class="avatar avatar-lg">{{ settlement.payer.avatar_initials }}</div>
+        <div>
+          <p style="font-weight:600;font-size:15px;">{{ settlement.payer.get_full_name }}</p>
+          <p style="font-size:13px;color:var(--text-secondary);">declarou ter te pago</p>
+        </div>
+      </div>
+      <p style="font-family:var(--font-display);font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--success);">R$ {{ settlement.amount|floatformat:2 }}</p>
+      {% if settlement.pix_key_used %}
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:6px;">Pix: <strong>{{ settlement.pix_key_used }}</strong></p>
+      {% endif %}
+      {% if settlement.notes %}
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;font-style:italic;">{{ settlement.notes }}</p>
+      {% endif %}
+      <p style="font-size:12px;color:var(--text-hint);margin-top:8px;">Registrado em {{ settlement.created_at|date:"d/m/Y" }} às {{ settlement.created_at|time:"H:i" }}</p>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:1.25rem;">
+      Você confirma que recebeu este valor? Os saldos do grupo <strong>{{ settlement.group.name }}</strong> serão atualizados.
+    </p>
+    <div style="display:flex;gap:8px;">
+      <form method="post" style="display:contents;">
+        {% csrf_token %}
+        <button type="submit" name="action" value="confirm" class="btn btn-success">✓ Confirmar recebimento</button>
+        <button type="submit" name="action" value="dispute" class="btn btn-danger">✗ Não recebi / disputar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

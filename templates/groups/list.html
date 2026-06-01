@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Meus grupos{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 class="page-title">Meus grupos</h1>
+      <p class="page-sub">Todos os grupos em que você participa</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <a href="/groups/enter/" class="btn btn-secondary">🔗 Entrar com link</a>
+      <a href="/groups/new/" class="btn btn-primary">+ Novo grupo</a>
+    </div>
+  </div>
+  {% if memberships %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+    {% for m in memberships %}
+    <a href="/groups/{{ m.group.pk }}/" style="text-decoration:none;display:block;">
+      <div class="card" style="height:100%;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;">
+          <div style="width:44px;height:44px;border-radius:11px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
+            {% if m.group.type == 'republica' %}🏠{% elif m.group.type == 'viagem' %}✈️{% elif m.group.type == 'familia' %}👨‍👩‍👧{% elif m.group.type == 'coliving' %}🏢{% else %}👥{% endif %}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--text);">{{ m.group.name }}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">{{ m.group.get_type_display }}</div>
+          </div>
+          {% if m.role == 'admin' %}<span class="badge badge-accent">admin</span>{% endif %}
+        </div>
+        {% if m.group.description %}
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">{{ m.group.description|truncatechars:80 }}</p>
+        {% endif %}
+        <div style="font-size:12px;color:var(--text-hint);display:flex;align-items:center;gap:12px;">
+          <span>👤 {{ m.group.memberships.count }} membro{% if m.group.memberships.count != 1 %}s{% endif %}</span>
+          <span>Desde {{ m.joined_at|date:"M/Y" }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="max-width:440px;margin:4rem auto;text-align:center;padding:3rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">🏠</div>
+    <h3 style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:8px;">Nenhum grupo ainda</h3>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:1.5rem;">Crie um grupo para sua república ou entre com um link de convite.</p>
+    <a href="/groups/new/" class="btn btn-primary">Criar meu primeiro grupo</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

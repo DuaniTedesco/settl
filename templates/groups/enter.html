@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Entrar em um grupo{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div style="margin-bottom:1rem;"><a href="/groups/" style="font-size:14px;color:var(--text-secondary);">← Meus grupos</a></div>
+
+  <div class="card" style="max-width:480px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:2rem;margin-bottom:10px;">🔗</div>
+      <h1 class="page-title">Entrar em um grupo</h1>
+      <p style="color:var(--text-secondary);font-size:14px;margin-top:6px;">Cole o link de convite que você recebeu.</p>
+    </div>
+
+    {% if error %}
+    <div class="message error" style="margin-bottom:1rem;">{{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Link ou código de convite</label>
+        <input
+          type="text"
+          name="invite_input"
+          value="{{ invite_input|default:'' }}"
+          placeholder="https://settl.app/groups/join/xxxxxxxx-..."
+          autofocus
+          required
+        >
+        <p class="form-hint">Cole o link completo ou só o código (UUID) que o admin do grupo enviou.</p>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Entrar no grupo</button>
+    </form>
+
+    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);text-align:center;">
+      <p style="font-size:13px;color:var(--text-secondary);">Não tem um link?</p>
+      <a href="/groups/new/" class="btn btn-sm btn-secondary" style="margin-top:8px;">Criar meu próprio grupo</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

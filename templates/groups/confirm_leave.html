@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Sair de {{ group.name }}{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div class="card" style="max-width:440px;margin:4rem auto;">
+    <h1 class="page-title" style="margin-bottom:.75rem;">Sair de "{{ group.name }}"?</h1>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:14px;">Você perderá acesso às despesas deste grupo. Dívidas pendentes não são canceladas automaticamente.</p>
+    <div style="display:flex;gap:8px;">
+      <form method="post">{% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, sair do grupo</button>
+      </form>
+      <a href="/groups/{{ group.pk }}/" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

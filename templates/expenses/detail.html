@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ expense.description }}{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div style="margin-bottom:1rem;"><a href="/groups/{{ group.pk }}/" style="font-size:14px;color:var(--text-secondary);">← {{ group.name }}</a></div>
+  <div class="card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:12px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span class="badge badge-gray">{{ expense.get_category_display }}</span>
+          {% if expense.recurrence != 'none' %}<span class="badge badge-primary">{{ expense.get_recurrence_display }}</span>{% endif %}
+        </div>
+        <h1 style="font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.3px;">{{ expense.description }}</h1>
+        <p style="color:var(--text-secondary);font-size:13px;margin-top:4px;">{{ expense.date|date:"d/m/Y" }}</p>
+      </div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-1px;white-space:nowrap;">R$ {{ expense.amount|floatformat:2 }}</div>
+    </div>
+
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;">
+      <div class="avatar">{{ expense.paid_by.avatar_initials }}</div>
+      <div>
+        <p style="font-size:12px;color:var(--text-secondary);">Pago por</p>
+        <p style="font-size:14px;font-weight:500;">{{ expense.paid_by.get_full_name }}</p>
+      </div>
+    </div>
+
+    <hr>
+    <h3 class="section-label" style="margin-top:1.25rem;">Divisão entre membros</h3>
+    {% for share in shares %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="avatar">{{ share.user.avatar_initials }}</div>
+        <span style="font-size:14px;">{{ share.user.get_full_name }}</span>
+        {% if share.user == expense.paid_by %}<span class="badge badge-green">pagou</span>{% endif %}
+      </div>
+      <span style="font-weight:500;font-size:14px;">R$ {{ share.amount|floatformat:2 }}</span>
+    </div>
+    {% endfor %}
+
+    {% if expense.notes %}
+    <hr>
+    <p style="font-size:13px;color:var(--text-secondary);font-style:italic;">{{ expense.notes }}</p>
+    {% endif %}
+
+    {% if expense.created_by == request.user or membership.role == 'admin' %}
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <a href="/expenses/{{ expense.pk }}/delete/" class="btn btn-sm btn-danger">Excluir despesa</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

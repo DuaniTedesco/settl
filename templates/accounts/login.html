@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:2rem;">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2.5C5 2.5 3 4.5 3 7c0 1.8 1 3.2 2.5 3.8L5 13h6l-.5-2.2C12 10.2 13 8.8 13 7c0-2.5-2-4.5-5-4.5z" fill="#c8f542"/>
+          <path d="M6 13h4v1.5H6V13z" fill="#c8f542" opacity=".6"/>
+        </svg>
+      </div>
+      <span class="logo-text">Settl</span>
+    </a>
+    <h1 class="auth-title">Bem-vindo de volta</h1>
+    <p class="auth-sub">Entre para ver seus grupos e despesas.</p>
+    {% if form.errors %}
+    <div class="message error" style="margin-bottom:1rem;">E-mail ou senha incorretos.</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" name="username" placeholder="seu@email.com" autofocus required>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">Entrar</button>
+    </form>
+    <p style="margin-top:1.5rem;text-align:center;font-size:14px;color:var(--text-secondary);">
+      Não tem conta? <a href="/accounts/register/" style="font-weight:500;">Criar conta grátis</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Nova despesa — {{ group.name }}{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div style="margin-bottom:1rem;"><a href="/groups/{{ group.pk }}/" style="font-size:14px;color:var(--text-secondary);">← {{ group.name }}</a></div>
+  <h1 class="page-title" style="margin-bottom:1.5rem;">{{ title }}</h1>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" name="description" value="{{ form.description.value|default:'' }}" placeholder="Ex: Conta de luz de março" autofocus required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Valor (R$)</label>
+          <input type="number" name="amount" value="{{ form.amount.value|default:'' }}" step="0.01" min="0.01" placeholder="0,00" required>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" name="date" value="{{ form.initial.date|date:'Y-m-d' }}" required>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Categoria</label>
+          <select name="category">
+            {% for val, label in form.fields.category.choices %}
+            <option value="{{ val }}" {% if form.category.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pago por</label>
+          <select name="paid_by">
+            {% for user_obj in form.fields.paid_by.queryset %}
+            <option value="{{ user_obj.pk }}" {% if form.paid_by.value|stringformat:"s" == user_obj.pk|stringformat:"s" %}selected{% endif %}>{{ user_obj.get_full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Divisão</label>
+          <select name="split_type">
+            {% for val, label in form.fields.split_type.choices %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Recorrência</label>
+          <select name="recurrence">
+            {% for val, label in form.fields.recurrence.choices %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observações <span style="font-weight:400;color:var(--text-hint)">(opcional)</span></label>
+        <textarea name="notes" rows="2" placeholder="Algum detalhe adicional...">{{ form.notes.value|default:'' }}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:.5rem;">
+        <button type="submit" class="btn btn-primary">Salvar despesa</button>
+        <a href="/groups/{{ group.pk }}/" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
