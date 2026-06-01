@@ -2,9 +2,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+from django.shortcuts import render, redirect
 from django.http import FileResponse
 import os
+
+def landing(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'landing.html')
 
 def serve_manifest(request):
     path_ = os.path.join(settings.BASE_DIR, 'static', 'manifest.json')
@@ -16,7 +21,7 @@ def serve_sw(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
+    path('', landing, name='landing'),
     path('manifest.json', serve_manifest, name='manifest'),
     path('sw.js', serve_sw, name='sw'),
     path('accounts/', include('accounts.urls')),
