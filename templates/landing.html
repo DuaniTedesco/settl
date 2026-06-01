@@ -5,180 +5,524 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settl — Acerte as contas da república sem drama</title>
   <meta name="description" content="Divida aluguel, luz, internet e tudo mais com sua república. O Settl faz as contas e diz exatamente quem deve quanto — e para quem.">
-
-  <!-- PWA -->
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0e0e0c">
+  <meta name="theme-color" content="#0a0a08">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --ink: #0e0e0c;
-      --paper: #f6f5f1;
-      --paper2: #eceae3;
+      --bg: #0a0a08;
+      --bg2: #111110;
+      --surface: #1a1a18;
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.14);
+      --text: #f2f0eb;
+      --muted: rgba(242,240,235,.45);
+      --hint: rgba(242,240,235,.25);
       --accent: #c8f542;
-      --accent2: #2a5010;
+      --accent-dark: #2a5010;
       --green: #1a6b4a;
-      --muted: #6b6960;
-      --border: rgba(14,14,12,.1);
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* NAV */
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; background: rgba(246,245,241,.88); backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color .3s; }
+    /* ── Tipografia ── */
+    .serif { font-family: 'Instrument Serif', Georgia, serif; }
+    h1, h2, h3 { font-weight: 400; line-height: 1.1; letter-spacing: -.02em; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 64px;
+      background: rgba(10,10,8,.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: border-color .4s;
+    }
     nav.scrolled { border-bottom-color: var(--border); }
-    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .logo-pill { background: var(--ink); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-    .nav-link { font-size: 14px; color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 100px; transition: background .15s, color .15s; }
-    .nav-link:hover { background: var(--border); color: var(--ink); }
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; transition: all .2s; cursor: pointer; border: none; }
-    .btn-dark { background: var(--ink); color: var(--paper); }
-    .btn-dark:hover { background: var(--green); }
-    .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
-    .btn-outline:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .btn-accent { background: var(--accent); color: var(--accent2); font-weight: 500; }
-    .btn-accent:hover { background: #b8e530; }
-    .btn-lg { padding: 14px 28px; font-size: 16px; }
+    .nav-logo {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600; font-size: 17px;
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 10px; letter-spacing: -.02em;
+    }
+    .logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { display: block; }
+    .nav-right { display: flex; align-items: center; gap: 6px; }
+    .nav-link {
+      font-size: 14px; font-weight: 400; color: var(--muted);
+      text-decoration: none; padding: 7px 14px; border-radius: 100px;
+      transition: color .2s, background .2s;
+    }
+    .nav-link:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .pill {
+      display: inline-flex; align-items: center;
+      padding: 8px 18px; border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: all .2s; border: none;
+    }
+    .pill-ghost { border: 1px solid var(--border2); color: var(--text); background: transparent; }
+    .pill-ghost:hover { background: rgba(255,255,255,.08); }
+    .pill-accent { background: var(--accent); color: var(--accent-dark); }
+    .pill-accent:hover { background: #d4f85a; }
 
-    /* HERO */
-    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 120px 40px 80px; position: relative; overflow: hidden; }
-    .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: var(--accent); opacity: .12; right: -150px; top: -100px; filter: blur(100px); pointer-events: none; }
-    .hero-glow2 { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: var(--green); opacity: .08; left: -80px; bottom: 0; filter: blur(80px); pointer-events: none; }
-    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--accent2); font-size: 13px; font-weight: 500; padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; width: fit-content; }
-    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); }
-    .hero-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(48px, 8vw, 96px); line-height: 1.0; letter-spacing: -3px; max-width: 860px; }
-    .hero-title em { font-style: normal; color: var(--muted); }
-    .hl { position: relative; display: inline-block; }
-    .hl::after { content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 12px; background: var(--accent); z-index: -1; border-radius: 3px; }
-    .hero-sub { margin-top: 24px; font-size: 19px; color: var(--muted); max-width: 480px; font-weight: 300; line-height: 1.6; }
-    .hero-cta { margin-top: 36px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .hero-social { margin-top: 16px; font-size: 13px; color: var(--muted); }
-    .hero-social strong { color: var(--ink); }
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 100px 40px 80px;
+      position: relative; overflow: hidden;
+    }
 
-    /* MARQUEE */
-    .marquee-wrap { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; background: var(--ink); }
-    .marquee-track { display: flex; gap: 56px; white-space: nowrap; animation: marquee 24s linear infinite; width: max-content; }
-    .marquee-item { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: rgba(246,245,241,.7); letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 20px; }
-    .marquee-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    /* Grade de fundo sutil */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    /* Fade embaixo da grade */
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 300px;
+      background: linear-gradient(transparent, var(--bg));
+      pointer-events: none;
+    }
 
-    /* COMO FUNCIONA */
-    .section { padding: 96px 40px; }
-    .section-label { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 46px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; max-width: 560px; }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-    .step { background: var(--paper); padding: 32px 28px; transition: background .2s; }
-    .step:hover { background: var(--paper2); }
-    .step-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: .1em; margin-bottom: 16px; }
-    .step-icon { font-size: 28px; margin-bottom: 16px; }
-    .step h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .step p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+    .hero-glow {
+      position: absolute; width: 700px; height: 700px;
+      border-radius: 50%; background: var(--accent);
+      opacity: .04; right: -200px; top: -200px;
+      filter: blur(120px); pointer-events: none;
+    }
 
-    /* APP PREVIEW */
-    .preview-section { padding: 96px 40px; background: var(--ink); color: var(--paper); }
-    .preview-section .section-label { color: rgba(246,245,241,.4); }
-    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-top: 40px; }
-    .preview-text h2 { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3.5vw, 40px); font-weight: 800; letter-spacing: -.8px; line-height: 1.15; margin-bottom: 20px; }
-    .preview-list { display: flex; flex-direction: column; gap: 14px; }
-    .preview-item { display: flex; gap: 12px; align-items: flex-start; }
-    .preview-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(200,245,66,.12); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-    .preview-item h4 { font-size: 14px; font-weight: 500; color: var(--paper); margin-bottom: 2px; }
-    .preview-item p { font-size: 13px; color: rgba(246,245,241,.5); font-weight: 300; line-height: 1.5; }
-    .phone-mockup { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; padding: 20px 16px; max-width: 320px; margin: 0 auto; }
-    .phone-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
-    .phone-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 6px; }
-    .phone-logo-pill { background: var(--accent); border-radius: 5px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--accent2); }
-    .phone-section { margin-bottom: 14px; }
-    .phone-section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: rgba(246,245,241,.35); margin-bottom: 8px; }
-    .balance-card { background: rgba(255,255,255,.06); border-radius: 10px; padding: 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
-    .balance-name { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .av { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
-    .balance-val { font-size: 13px; font-weight: 500; }
+    .hero-content { position: relative; z-index: 1; max-width: 900px; }
+
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 28px;
+    }
+    .hero-label::before {
+      content: '';
+      width: 20px; height: 1px; background: var(--accent);
+    }
+
+    .hero-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(56px, 9vw, 108px);
+      font-weight: 400;
+      line-height: 1.0;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 18px; font-weight: 300;
+      color: var(--muted); max-width: 440px;
+      line-height: 1.7; margin-bottom: 44px;
+    }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    .hero-note {
+      margin-top: 20px;
+      font-size: 12px; color: var(--hint);
+      letter-spacing: .02em;
+    }
+
+    /* ── NÚMEROS ── */
+    .numbers {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .number-item {
+      padding: 40px;
+      border-right: 1px solid var(--border);
+    }
+    .number-item:last-child { border-right: none; }
+    .number-val {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 52px; font-weight: 400;
+      letter-spacing: -.03em;
+      color: var(--text); line-height: 1;
+      margin-bottom: 8px;
+    }
+    .number-val span { color: var(--accent); }
+    .number-label { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+    /* ── COMO FUNCIONA ── */
+    .section { padding: 100px 40px; }
+
+    .section-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 64px; gap: 40px; flex-wrap: wrap;
+    }
+    .section-tag {
+      font-size: 11px; font-weight: 500; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--hint);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 400; letter-spacing: -.02em;
+      line-height: 1.1; color: var(--text);
+      max-width: 500px;
+    }
+    .section-desc {
+      font-size: 15px; font-weight: 300;
+      color: var(--muted); max-width: 340px;
+      line-height: 1.7; margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden;
+    }
+    .step {
+      background: var(--bg2); padding: 40px 32px;
+      transition: background .3s;
+    }
+    .step:hover { background: var(--surface); }
+    .step-index {
+      font-size: 11px; font-weight: 500; letter-spacing: .08em;
+      color: var(--hint); text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .step-num {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 72px; font-weight: 400; line-height: 1;
+      color: rgba(255,255,255,.06);
+      margin-bottom: 20px; letter-spacing: -.04em;
+    }
+    .step h3 {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 24px; font-weight: 400;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .step p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.7; }
+
+    /* ── MOCKUP DO APP ── */
+    .app-section {
+      padding: 100px 40px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .app-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .app-text .section-title { max-width: 100%; }
+    .app-features { margin-top: 36px; display: flex; flex-direction: column; gap: 0; }
+    .app-feat {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .app-feat:first-child { border-top: 1px solid var(--border); }
+    .feat-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; margin-top: 8px;
+    }
+    .app-feat h4 { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .app-feat p { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+    /* Mockup visual */
+    .mockup {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px; padding: 24px;
+      max-width: 340px; margin: 0 auto;
+    }
+    .mockup-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 600; letter-spacing: -.02em;
+    }
+    .mockup-logo-icon {
+      width: 22px; height: 22px; border-radius: 5px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mockup-group { font-size: 12px; color: var(--hint); }
+    .mockup-section { margin-bottom: 20px; }
+    .mockup-label {
+      font-size: 10px; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--hint); margin-bottom: 10px;
+    }
+    .balance-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      margin-bottom: 4px;
+    }
+    .av {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .av-name { font-size: 13px; font-weight: 400; flex: 1; }
+    .av-val { font-size: 13px; font-weight: 500; }
     .pos { color: #4ade80; }
     .neg { color: #f87171; }
-    .transfer-card { background: rgba(200,245,66,.08); border: 1px solid rgba(200,245,66,.2); border-radius: 10px; padding: 12px; }
-    .transfer-title { font-size: 10px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .transfer-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(246,245,241,.7); margin-bottom: 6px; }
+    .transfer-box {
+      background: rgba(200,245,66,.07);
+      border: 1px solid rgba(200,245,66,.18);
+      border-radius: 10px; padding: 14px;
+    }
+    .transfer-label {
+      font-size: 10px; font-weight: 500; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+    }
+    .transfer-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--muted); margin-bottom: 6px;
+    }
     .transfer-row:last-child { margin-bottom: 0; }
-    .pix-badge { font-size: 10px; background: rgba(200,245,66,.15); color: var(--accent); padding: 1px 6px; border-radius: 100px; margin-left: auto; }
-    .exp-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 12px; color: rgba(246,245,241,.7); }
-    .exp-row:last-child { border-bottom: none; }
-    .exp-icon { font-size: 14px; }
-    .exp-val { margin-left: auto; font-weight: 500; color: var(--paper); }
+    .t-av { width: 18px; height: 18px; border-radius: 50%; font-size: 8px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .t-arrow { color: var(--hint); }
+    .t-amount { margin-left: auto; font-weight: 500; color: #f87171; }
+    .pix-tag {
+      font-size: 9px; background: rgba(200,245,66,.12);
+      color: var(--accent); padding: 1px 6px; border-radius: 100px; margin-left: 4px;
+    }
 
-    /* FEATURES */
-    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 48px; }
-    .feat-card { background: var(--paper2); border: 1px solid var(--border); border-radius: 14px; padding: 24px 22px; transition: transform .2s; }
-    .feat-card:hover { transform: translateY(-3px); }
-    .feat-icon { font-size: 22px; margin-bottom: 12px; }
-    .feat-card h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 5px; }
-    .feat-card p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; }
-    .feat-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 100px; background: var(--accent); color: var(--accent2); margin-top: 8px; }
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden;
+    }
+    .feat-card {
+      background: var(--bg2); padding: 36px 32px;
+      transition: background .3s;
+    }
+    .feat-card:hover { background: var(--surface); }
+    .feat-tag {
+      font-size: 11px; font-weight: 500; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--hint); margin-bottom: 20px;
+    }
+    .feat-card h3 {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 22px; font-weight: 400;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .feat-card p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.7; }
+    .feat-pill {
+      display: inline-block; margin-top: 14px;
+      font-size: 11px; font-weight: 500; padding: 3px 10px;
+      border-radius: 100px; background: rgba(200,245,66,.1);
+      color: var(--accent); border: 1px solid rgba(200,245,66,.2);
+    }
 
-    /* PRICING */
-    .pricing-section { padding: 96px 40px; background: var(--paper2); }
-    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 680px; margin: 48px auto 0; }
-    .plan { background: var(--paper); border: 1.5px solid var(--border); border-radius: 16px; padding: 28px 24px; }
-    .plan.featured { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .plan-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-    .plan.featured .plan-label { color: var(--accent); }
-    .plan-price { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
-    .plan-period { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-    .plan.featured .plan-period { color: rgba(246,245,241,.4); }
-    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
-    .plan-features li { font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 300; }
-    .plan.featured .plan-features li { color: rgba(246,245,241,.65); }
-    .plan-features li::before { content: '✓'; width: 17px; height: 17px; border-radius: 50%; background: var(--accent); color: var(--accent2); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .plan-btn { display: block; text-align: center; padding: 12px; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: transform .2s; }
-    .plan-btn:hover { transform: translateY(-2px); }
-    .plan-btn-outline { border: 1.5px solid var(--border); color: var(--ink); background: transparent; }
-    .plan-btn-accent { background: var(--accent); color: var(--accent2); }
+    /* ── TESTEMUNHOS ── */
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden;
+    }
+    .tcard { background: var(--bg2); padding: 36px 28px; transition: background .3s; }
+    .tcard:hover { background: var(--surface); }
+    .tcard-quote {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 18px; font-weight: 400; font-style: italic;
+      line-height: 1.5; color: var(--text);
+      margin-bottom: 24px;
+    }
+    .tcard-author { display: flex; align-items: center; gap: 10px; }
+    .tcard-av {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .tcard-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .tcard-role { font-size: 12px; color: var(--hint); margin-top: 1px; }
 
-    /* TESTEMUNHOS */
-    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
-    .tcard { background: var(--paper); border: 1px solid var(--border); border-radius: 14px; padding: 24px 20px; }
-    .tcard-quote { font-size: 15px; line-height: 1.65; font-weight: 300; font-style: italic; margin-bottom: 16px; color: var(--ink); }
-    .tcard-author { display: flex; align-items: center; gap: 8px; }
-    .tcard-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
-    .tcard-name { font-size: 13px; font-weight: 500; }
-    .tcard-role { font-size: 12px; color: var(--muted); }
+    /* ── PRICING ── */
+    .pricing-section {
+      padding: 100px 40px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; max-width: 720px; margin: 64px auto 0;
+    }
+    .plan {
+      border-radius: 16px; padding: 32px 28px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .plan.featured {
+      border-color: var(--accent);
+      background: rgba(200,245,66,.04);
+    }
+    .plan-name {
+      font-size: 11px; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--hint); margin-bottom: 20px;
+    }
+    .plan.featured .plan-name { color: var(--accent); }
+    .plan-price {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 52px; font-weight: 400; line-height: 1;
+      letter-spacing: -.02em; color: var(--text); margin-bottom: 6px;
+    }
+    .plan-period { font-size: 13px; color: var(--hint); margin-bottom: 28px; }
+    .plan-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .plan-list li {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 14px; color: var(--muted); font-weight: 300;
+    }
+    .plan-list li::before {
+      content: ''; flex-shrink: 0;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent); margin-top: 8px;
+    }
+    .plan.featured .plan-list li { color: rgba(242,240,235,.7); }
+    .plan-btn {
+      display: block; text-align: center; width: 100%;
+      padding: 13px; border-radius: 100px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      border: none; text-decoration: none; transition: all .2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .plan-btn:hover { transform: translateY(-1px); }
+    .plan-btn-ghost { border: 1px solid var(--border2); color: var(--text); background: transparent; }
+    .plan-btn-ghost:hover { background: rgba(255,255,255,.06); }
+    .plan-btn-fill { background: var(--accent); color: var(--accent-dark); }
+    .plan-btn-fill:hover { background: #d4f85a; }
 
-    /* CTA */
-    .cta-section { padding: 96px 40px; background: var(--ink); text-align: center; position: relative; overflow: hidden; }
-    .cta-glow { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: var(--accent); opacity: .06; left: 50%; top: 50%; transform: translate(-50%,-50%); filter: blur(80px); pointer-events: none; }
-    .cta-section h2 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 56px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--paper); max-width: 620px; margin: 0 auto 14px; position: relative; }
-    .cta-section p { color: rgba(246,245,241,.45); font-size: 17px; font-weight: 300; margin-bottom: 32px; position: relative; }
-    .cta-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+    /* ── CTA FINAL ── */
+    .cta-section {
+      padding: 120px 40px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .cta-glow {
+      position: absolute; width: 500px; height: 500px;
+      border-radius: 50%; background: var(--accent);
+      opacity: .05; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(100px); pointer-events: none;
+    }
+    .cta-section h2 {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 400; letter-spacing: -.03em;
+      line-height: 1.1; color: var(--text);
+      max-width: 700px; margin: 0 auto 20px;
+      position: relative;
+    }
+    .cta-section h2 em { font-style: italic; color: var(--accent); }
+    .cta-sub {
+      font-size: 16px; font-weight: 300; color: var(--muted);
+      margin-bottom: 40px; position: relative;
+    }
+    .cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; }
+    .cta-note { margin-top: 20px; font-size: 12px; color: var(--hint); letter-spacing: .02em; position: relative; }
 
-    /* FOOTER */
-    footer { padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .marquee-track { display: flex; gap: 48px; white-space: nowrap; animation: marquee 28s linear infinite; width: max-content; }
+    .marquee-item {
+      font-size: 12px; font-weight: 400; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--hint);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .marquee-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
-    /* ANIMAÇÕES */
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    /* ── FOOTER ── */
+    footer {
+      padding: 28px 40px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer a { color: var(--hint); text-decoration: none; font-size: 13px; transition: color .2s; }
+    footer a:hover { color: var(--text); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-copy { font-size: 12px; color: var(--hint); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
 
-    /* MOBILE */
+    /* ── ANIM ── */
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── MOBILE ── */
     @media (max-width: 768px) {
-      nav { padding: 14px 20px; }
+      nav { padding: 0 20px; }
       .nav-link { display: none; }
-      .hero { padding: 96px 20px 60px; }
-      .section, .pricing-section { padding: 64px 20px; }
-      .preview-section { padding: 64px 20px; }
-      .cta-section { padding: 64px 20px; }
+      .hero { padding: 90px 20px 60px; }
+      .section { padding: 64px 20px; }
+      .app-section, .pricing-section, .cta-section { padding: 64px 20px; }
       footer { padding: 24px 20px; }
-      .steps { grid-template-columns: 1fr; }
-      .preview-grid { grid-template-columns: 1fr; }
-      .features-grid { grid-template-columns: 1fr; }
-      .testimonials { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; max-width: 380px; }
-      .phone-mockup { max-width: 100%; }
+      .numbers { grid-template-columns: 1fr; }
+      .number-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .number-item:last-child { border-bottom: none; }
+      .section-header { flex-direction: column; gap: 16px; }
+      .steps, .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
+      .app-grid { grid-template-columns: 1fr; gap: 48px; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
     }
   </style>
 </head>
@@ -187,174 +531,223 @@
 <!-- NAV -->
 <nav id="nav">
   <a href="/" class="nav-logo">
-    <div class="logo-pill">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 2C5 2 3 4 3 6.5c0 1.8 1 3.3 2.5 4L5 14h6l-.5-3.5C12 9.8 13 8.3 13 6.5 13 4 11 2 8 2z" fill="#c8f542"/>
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1C4.2 1 2 3.2 2 5.7c0 1.6.9 3 2.3 3.7L3.8 13h6.4l-.5-3.6C11.1 8.7 12 7.3 12 5.7 12 3.2 9.8 1 7 1z" fill="#0a0a08"/>
       </svg>
     </div>
     Settl
   </a>
-  <div class="nav-links">
+  <div class="nav-right">
     <a href="#como-funciona" class="nav-link">Como funciona</a>
-    <a href="#features" class="nav-link">Funcionalidades</a>
     <a href="#precos" class="nav-link">Preços</a>
-    <a href="/accounts/login/" class="btn btn-outline" style="padding:8px 18px;font-size:14px;">Entrar</a>
-    <a href="/accounts/register/" class="btn btn-dark" style="padding:8px 18px;font-size:14px;">Criar conta</a>
+    <a href="/accounts/login/" class="pill pill-ghost" style="font-size:13px;padding:7px 16px;">Entrar</a>
+    <a href="/accounts/register/" class="pill pill-accent" style="font-size:13px;padding:7px 16px;">Começar grátis</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
-  <div class="hero-eyebrow">Feito para repúblicas brasileiras</div>
-  <h1 class="hero-title">
-    Contas<br>
-    <span class="hl">acertadas</span>.<br>
-    <em>Sem drama.</em>
-  </h1>
-  <p class="hero-sub">Divida aluguel, luz, internet e tudo mais com sua república. O Settl faz as contas e diz exatamente quem deve quanto — e para quem.</p>
-  <div class="hero-cta">
-    <a href="/accounts/register/" class="btn btn-dark btn-lg">Começar grátis →</a>
-    <a href="#como-funciona" class="btn btn-outline btn-lg">Ver como funciona</a>
+  <div class="hero-content">
+    <div class="hero-label">Para repúblicas brasileiras</div>
+    <h1 class="hero-title">
+      Contas acertadas.<br>
+      <em>Sem drama.</em>
+    </h1>
+    <p class="hero-sub">
+      Divida aluguel, luz e internet com sua república. O Settl faz as contas e mostra exatamente quem deve quanto — com a chave Pix do credor na tela.
+    </p>
+    <div class="hero-actions">
+      <a href="/accounts/register/" class="pill pill-accent" style="padding:13px 28px;font-size:15px;">Criar conta grátis</a>
+      <a href="#como-funciona" class="pill pill-ghost" style="padding:13px 28px;font-size:15px;">Ver como funciona</a>
+    </div>
+    <p class="hero-note">Sem cartão de crédito &nbsp;·&nbsp; Grátis para sempre no plano básico &nbsp;·&nbsp; Sem anúncios</p>
   </div>
-  <p class="hero-social" style="margin-top:20px;font-size:13px;color:var(--muted);">Sem cartão de crédito · Grátis para sempre no plano básico</p>
 </section>
 
-<!-- MARQUEE -->
-<div class="marquee-wrap" aria-hidden="true">
-  <div class="marquee-track">
-    <div class="marquee-item"><div class="marquee-dot"></div>Divide igualitário</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Saldo em tempo real</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Acerto via Pix</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Despesas recorrentes</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Convite por link</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Dashboard de gastos</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Sem planilha</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Sem briga</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Divide igualitário</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Saldo em tempo real</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Acerto via Pix</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Despesas recorrentes</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Convite por link</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Dashboard de gastos</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Sem planilha</div>
-    <div class="marquee-item"><div class="marquee-dot"></div>Sem briga</div>
+<!-- NÚMEROS -->
+<div class="numbers reveal">
+  <div class="number-item">
+    <div class="number-val">3<span>min</span></div>
+    <div class="number-label">para criar sua república e convidar os moradores</div>
+  </div>
+  <div class="number-item">
+    <div class="number-val">R$<span>0</span></div>
+    <div class="number-label">para começar — plano grátis sem limite de despesas</div>
+  </div>
+  <div class="number-item">
+    <div class="number-val">0<span>briga</span></div>
+    <div class="number-label">quando os saldos são transparentes para todo mundo</div>
   </div>
 </div>
 
 <!-- COMO FUNCIONA -->
 <section class="section reveal" id="como-funciona">
-  <div class="section-label">Como funciona</div>
-  <h2 class="section-title">Três passos e as contas estão settled.</h2>
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Como funciona</div>
+      <h2 class="section-title">Três passos e as contas estão <em>settled.</em></h2>
+    </div>
+    <p class="section-desc">Sem planilha, sem WhatsApp cheio de cobranças, sem aquela sensação de estar sendo chato com os amigos.</p>
+  </div>
   <div class="steps">
     <div class="step">
+      <div class="step-index">Passo 01</div>
       <div class="step-num">01</div>
-      <div class="step-icon">🏠</div>
-      <h3>Crie sua república</h3>
-      <p>Dá nome ao grupo e manda um link de convite no WhatsApp. Cada morador entra com seu próprio cadastro em menos de 2 minutos.</p>
+      <h3>Crie a república</h3>
+      <p>Dá nome ao grupo e manda um link de convite. Cada morador entra com o próprio cadastro em menos de dois minutos — sem você precisar cadastrar ninguém.</p>
     </div>
     <div class="step">
+      <div class="step-index">Passo 02</div>
       <div class="step-num">02</div>
-      <div class="step-icon">📋</div>
       <h3>Lance as despesas</h3>
-      <p>Aluguel, luz, água, internet, gás. Diz quem pagou e o Settl divide automaticamente entre todos. Contas recorrentes só configuradas uma vez.</p>
+      <p>Aluguel, luz, água, internet, gás. Diz quem pagou e o Settl divide automaticamente entre todos. Contas recorrentes, configure uma vez.</p>
     </div>
     <div class="step">
+      <div class="step-index">Passo 03</div>
       <div class="step-num">03</div>
-      <div class="step-icon">✅</div>
       <h3>Acerte e pronto</h3>
-      <p>O app mostra exatamente quem deve pagar quanto a quem — com a chave Pix do credor já na tela. Um toque e está settled.</p>
+      <p>O app calcula o mínimo de transferências necessárias e mostra a chave Pix de quem vai receber. Um toque e está settled.</p>
     </div>
   </div>
 </section>
 
+<!-- MARQUEE -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-item"><div class="marquee-sep"></div>Divisão igualitária</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Saldo em tempo real</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Acerto via Pix</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Despesas recorrentes</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Convite por link</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Dashboard analítico</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Sem planilha</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Sem drama</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Divisão igualitária</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Saldo em tempo real</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Acerto via Pix</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Despesas recorrentes</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Convite por link</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Dashboard analítico</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Sem planilha</div>
+    <div class="marquee-item"><div class="marquee-sep"></div>Sem drama</div>
+  </div>
+</div>
+
 <!-- APP PREVIEW -->
-<section class="preview-section reveal">
-  <div class="section-label">O app</div>
-  <div class="preview-grid">
-    <div class="preview-text">
-      <h2>Tudo que sua república precisa, num só lugar.</h2>
-      <div class="preview-list" style="margin-top:24px;">
-        <div class="preview-item">
-          <div class="preview-icon">🧮</div>
+<section class="app-section reveal">
+  <div class="app-grid">
+    <div class="app-text">
+      <div class="section-tag">O produto</div>
+      <h2 class="section-title">Tudo que sua república precisa, num só lugar.</h2>
+      <div class="app-features">
+        <div class="app-feat">
+          <div class="feat-dot"></div>
           <div>
             <h4>Simplificação de dívidas</h4>
-            <p>Em vez de 10 transferências, o Settl calcula o mínimo necessário para zerar todos os saldos.</p>
+            <p>Em vez de dez transferências, o Settl calcula o mínimo necessário para zerar todos os saldos do grupo.</p>
           </div>
         </div>
-        <div class="preview-item">
-          <div class="preview-icon">📊</div>
-          <div>
-            <h4>Dashboard por categoria</h4>
-            <p>Veja onde o grupo gasta mais: aluguel, energia, alimentação. Gráficos interativos filtráveis por mês e membro.</p>
-          </div>
-        </div>
-        <div class="preview-item">
-          <div class="preview-icon">🔒</div>
+        <div class="app-feat">
+          <div class="feat-dot"></div>
           <div>
             <h4>Confirmação de acerto</h4>
-            <p>O saldo só muda quando o credor confirma. Sem fé cega, sem mal-entendido, sem "mas eu já paguei".</p>
+            <p>O saldo só muda quando o credor confirma. Sem fé cega, sem "mas eu já paguei".</p>
           </div>
         </div>
-        <div class="preview-item">
-          <div class="preview-icon">📱</div>
+        <div class="app-feat">
+          <div class="feat-dot"></div>
           <div>
-            <h4>Instala como app</h4>
-            <p>Sem App Store. Abre o link no celular e instala direto na tela inicial — igual a um app nativo.</p>
+            <h4>Dashboard por categoria</h4>
+            <p>Veja onde a república gasta mais mês a mês. Gráficos filtráveis por período e por membro.</p>
+          </div>
+        </div>
+        <div class="app-feat">
+          <div class="feat-dot"></div>
+          <div>
+            <h4>Instala como app no celular</h4>
+            <p>Sem App Store. Abre o link no Chrome ou Safari e instala direto na tela inicial.</p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Mockup -->
     <div>
-      <div class="phone-mockup">
-        <div class="phone-bar">
-          <div class="phone-logo">
-            <div class="phone-logo-pill">S</div>
+      <div class="mockup">
+        <div class="mockup-header">
+          <div class="mockup-logo">
+            <div class="mockup-logo-icon">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1C4.2 1 2 3.2 2 5.7c0 1.6.9 3 2.3 3.7L3.8 13h6.4l-.5-3.6C11.1 8.7 12 7.3 12 5.7 12 3.2 9.8 1 7 1z" fill="#0a0a08"/>
+              </svg>
+            </div>
             Settl
           </div>
-          <span style="font-size:11px;color:rgba(246,245,241,.3);">República da Vila</span>
+          <span class="mockup-group">Rep. da Vila</span>
         </div>
 
-        <div class="phone-section">
-          <div class="phone-section-title">Saldos</div>
-          <div class="balance-card">
-            <div class="balance-name"><div class="av" style="background:#1a6b4a;">AN</div> Ana</div>
-            <span class="balance-val pos">+R$ 420,00</span>
+        <div class="mockup-section">
+          <div class="mockup-label">Saldos</div>
+          <div class="balance-row">
+            <div class="av" style="background:#1a6b4a;">AN</div>
+            <span class="av-name">Ana</span>
+            <span class="av-val pos">+R$ 420</span>
           </div>
-          <div class="balance-card">
-            <div class="balance-name"><div class="av" style="background:#185FA5;">BR</div> Bruno</div>
-            <span class="balance-val neg">−R$ 210,00</span>
+          <div class="balance-row">
+            <div class="av" style="background:#185FA5;">BR</div>
+            <span class="av-name">Bruno</span>
+            <span class="av-val neg">−R$ 210</span>
           </div>
-          <div class="balance-card">
-            <div class="balance-name"><div class="av" style="background:#854F0B;">CA</div> Carla</div>
-            <span class="balance-val neg">−R$ 210,00</span>
+          <div class="balance-row">
+            <div class="av" style="background:#7c3aed;">CA</div>
+            <span class="av-name">Carla</span>
+            <span class="av-val neg">−R$ 210</span>
           </div>
         </div>
 
-        <div class="phone-section">
-          <div class="transfer-card">
-            <div class="transfer-title">💸 Transferências necessárias</div>
+        <div class="mockup-section">
+          <div class="transfer-box">
+            <div class="transfer-label">Transferências necessárias</div>
             <div class="transfer-row">
-              <div class="av" style="background:#185FA5;width:20px;height:20px;font-size:9px;">BR</div>
-              Bruno → Ana
-              <span style="margin-left:auto;font-weight:500;color:#f87171;">R$ 210</span>
-              <span class="pix-badge">Pix</span>
+              <div class="t-av" style="background:#185FA5;">BR</div>
+              <span>Bruno</span>
+              <span class="t-arrow">→</span>
+              <div class="t-av" style="background:#1a6b4a;">AN</div>
+              <span>Ana</span>
+              <span class="t-amount">R$ 210</span>
+              <span class="pix-tag">Pix</span>
             </div>
             <div class="transfer-row">
-              <div class="av" style="background:#854F0B;width:20px;height:20px;font-size:9px;">CA</div>
-              Carla → Ana
-              <span style="margin-left:auto;font-weight:500;color:#f87171;">R$ 210</span>
-              <span class="pix-badge">Pix</span>
+              <div class="t-av" style="background:#7c3aed;">CA</div>
+              <span>Carla</span>
+              <span class="t-arrow">→</span>
+              <div class="t-av" style="background:#1a6b4a;">AN</div>
+              <span>Ana</span>
+              <span class="t-amount">R$ 210</span>
+              <span class="pix-tag">Pix</span>
             </div>
           </div>
         </div>
 
-        <div class="phone-section">
-          <div class="phone-section-title">Despesas recentes</div>
-          <div class="exp-row"><span class="exp-icon">🏠</span> Aluguel <span class="exp-val">R$ 2.100</span></div>
-          <div class="exp-row"><span class="exp-icon">📶</span> Internet <span class="exp-val">R$ 99,90</span></div>
-          <div class="exp-row"><span class="exp-icon">⚡</span> Energia <span class="exp-val">R$ 180,00</span></div>
+        <div class="mockup-section" style="margin-bottom:0">
+          <div class="mockup-label">Despesas recentes</div>
+          <div class="balance-row" style="margin-bottom:4px">
+            <span style="font-size:14px">🏠</span>
+            <span class="av-name" style="font-size:13px;">Aluguel</span>
+            <span class="av-val" style="font-size:13px;">R$ 2.100</span>
+          </div>
+          <div class="balance-row" style="margin-bottom:4px">
+            <span style="font-size:14px">📶</span>
+            <span class="av-name" style="font-size:13px;">Internet</span>
+            <span class="av-val" style="font-size:13px;">R$ 99,90</span>
+          </div>
+          <div class="balance-row" style="margin-bottom:0">
+            <span style="font-size:14px">⚡</span>
+            <span class="av-name" style="font-size:13px;">Energia</span>
+            <span class="av-val" style="font-size:13px;">R$ 180</span>
+          </div>
         </div>
       </div>
     </div>
@@ -363,138 +756,161 @@
 
 <!-- FEATURES -->
 <section class="section reveal" id="features">
-  <div class="section-label">Funcionalidades</div>
-  <h2 class="section-title">Feito para quem mora junto de verdade.</h2>
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Funcionalidades</div>
+      <h2 class="section-title">Feito para quem mora junto <em>de verdade.</em></h2>
+    </div>
+  </div>
   <div class="features-grid">
     <div class="feat-card">
-      <div class="feat-icon">⚡</div>
+      <div class="feat-tag">Automação</div>
       <h3>Despesas recorrentes</h3>
       <p>Aluguel e internet não precisam ser lançados todo mês. Configure uma vez, o Settl lembra automaticamente.</p>
-      <span class="feat-badge">Economiza tempo</span>
+      <span class="feat-pill">Economiza tempo</span>
     </div>
     <div class="feat-card">
-      <div class="feat-icon">🔗</div>
+      <div class="feat-tag">Onboarding</div>
       <h3>Convite por link</h3>
-      <p>Sem cadastrar ninguém manualmente. Manda o link no WhatsApp e todo mundo entra em segundos.</p>
+      <p>Sem cadastrar ninguém manualmente. Manda o link no WhatsApp e todo mundo entra em segundos — sem aprovação necessária.</p>
     </div>
     <div class="feat-card">
-      <div class="feat-icon">📊</div>
-      <h3>Dashboard analítico</h3>
-      <p>Gráficos de gastos por categoria, evolução mensal e ranking. Entenda onde o dinheiro vai — junto.</p>
+      <div class="feat-tag">Inteligência</div>
+      <h3>Menor número de transferências</h3>
+      <p>Com quatro pessoas e dez despesas, o Settl calcula os três ou quatro Pix que resolvem tudo — não os quarenta que seriam necessários manualmente.</p>
     </div>
     <div class="feat-card">
-      <div class="feat-icon">🇧🇷</div>
-      <h3>100% brasileiro</h3>
-      <p>Em português, em reais, com Pix no centro do fluxo. Feito para repúblicas brasileiras.</p>
-      <span class="feat-badge">Pix integrado em breve</span>
+      <div class="feat-tag">Brasil</div>
+      <h3>Pix como cidadão de primeira classe</h3>
+      <p>A chave Pix do credor aparece no fluxo de acerto. Em breve: pagamento integrado direto pelo app.</p>
+      <span class="feat-pill">Pix integrado em breve</span>
     </div>
   </div>
 </section>
 
 <!-- TESTEMUNHOS -->
-<section class="section reveal" style="background:var(--paper2);padding-top:80px;padding-bottom:80px;">
-  <div class="section-label">Primeiros usuários</div>
-  <h2 class="section-title">Quem usou não volta para planilha.</h2>
-  <div class="testimonials">
+<section class="section reveal" style="padding-top:0;">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Usuários</div>
+      <h2 class="section-title">Quem usou não volta <em>para planilha.</em></h2>
+    </div>
+  </div>
+  <div class="testimonials-grid">
     <div class="tcard">
       <p class="tcard-quote">"A gente ficava meses sem acertar porque ninguém concordava com os valores. Com o Settl, acabou a discussão — a matemática não mente."</p>
       <div class="tcard-author">
         <div class="tcard-av" style="background:#1a6b4a;">LM</div>
-        <div><div class="tcard-name">Lucas M.</div><div class="tcard-role">Rep. em SP · 4 moradores</div></div>
+        <div>
+          <div class="tcard-name">Lucas M.</div>
+          <div class="tcard-role">República em SP &middot; 4 moradores</div>
+        </div>
       </div>
     </div>
     <div class="tcard">
-      <p class="tcard-quote">"O melhor é o link de convite. Mandei no grupo, todo mundo entrou em 5 minutos. Outros apps já morriam nesse passo."</p>
+      <p class="tcard-quote">"O melhor é o link de convite. Mandei no grupo, todo mundo entrou em cinco minutos. Outros apps já morriam nesse passo."</p>
       <div class="tcard-author">
         <div class="tcard-av" style="background:#185FA5;">AC</div>
-        <div><div class="tcard-name">Ana C.</div><div class="tcard-role">Rep. em Campinas · 3 moradores</div></div>
+        <div>
+          <div class="tcard-name">Ana C.</div>
+          <div class="tcard-role">República em Campinas &middot; 3 moradores</div>
+        </div>
       </div>
     </div>
     <div class="tcard">
-      <p class="tcard-quote">"Eu pagava quase tudo primeiro. O Settl mostrou que eu tinha +R$ 800 de crédito acumulado. Em uma semana todo mundo me pagou."</p>
+      <p class="tcard-quote">"Eu pagava quase tudo primeiro. O Settl mostrou que eu tinha mais de R$ 800 de crédito acumulado. Em uma semana todo mundo me pagou."</p>
       <div class="tcard-author">
-        <div class="tcard-av" style="background:#854F0B;">RF</div>
-        <div><div class="tcard-name">Rafael F.</div><div class="tcard-role">Rep. em BH · 5 moradores</div></div>
+        <div class="tcard-av" style="background:#7c3aed;">RF</div>
+        <div>
+          <div class="tcard-name">Rafael F.</div>
+          <div class="tcard-role">República em BH &middot; 5 moradores</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PREÇOS -->
+<!-- PRICING -->
 <section class="pricing-section reveal" id="precos">
-  <div class="section-label" style="text-align:center;">Preços</div>
-  <h2 class="section-title" style="text-align:center;margin:0 auto;">Simples como as contas que você vai acertar.</h2>
+  <div style="text-align:center;">
+    <div class="section-tag">Preços</div>
+    <h2 class="section-title" style="margin:0 auto;max-width:100%;">Simples como as contas que você vai <em>acertar.</em></h2>
+  </div>
   <div class="pricing-grid">
     <div class="plan">
-      <div class="plan-label">Gratuito</div>
+      <div class="plan-name">Gratuito</div>
       <div class="plan-price">R$&thinsp;0</div>
       <div class="plan-period">para sempre</div>
-      <ul class="plan-features">
+      <ul class="plan-list">
         <li>1 grupo ativo</li>
         <li>Despesas ilimitadas</li>
         <li>Saldo e simplificação</li>
         <li>Convite por link</li>
-        <li>Acerto e confirmação</li>
+        <li>Acerto com confirmação</li>
         <li>Dashboard básico</li>
       </ul>
-      <a href="/accounts/register/" class="plan-btn plan-btn-outline">Começar grátis</a>
+      <a href="/accounts/register/" class="plan-btn plan-btn-ghost">Começar grátis</a>
     </div>
     <div class="plan featured">
-      <div class="plan-label">Pro</div>
+      <div class="plan-name">Pro</div>
       <div class="plan-price">R$&thinsp;14</div>
-      <div class="plan-period">/mês por grupo · admin paga pelos membros</div>
-      <ul class="plan-features">
+      <div class="plan-period">/mês por grupo &middot; admin paga pelos membros</div>
+      <ul class="plan-list">
         <li>Grupos ilimitados</li>
         <li>Despesas recorrentes</li>
         <li>Histórico completo</li>
         <li>Dashboard avançado</li>
+        <li>Exportação PDF e CSV</li>
         <li>Pix integrado (em breve)</li>
-        <li>Exportação PDF/CSV</li>
       </ul>
-      <a href="/accounts/register/" class="plan-btn plan-btn-accent">Entrar na lista Pro →</a>
+      <a href="/accounts/register/" class="plan-btn plan-btn-fill">Criar conta Pro</a>
     </div>
   </div>
 </section>
 
-<!-- CTA FINAL -->
+<!-- CTA -->
 <section class="cta-section reveal">
   <div class="cta-glow"></div>
-  <h2>Sua república merece contas acertadas.</h2>
-  <p>Crie sua conta grátis em menos de 2 minutos.</p>
-  <div class="cta-btns">
-    <a href="/accounts/register/" class="btn btn-accent btn-lg">Criar conta grátis →</a>
-    <a href="/accounts/login/" class="btn" style="background:rgba(255,255,255,.1);color:var(--paper);padding:14px 28px;font-size:16px;">Já tenho conta</a>
+  <h2>Sua república merece<br>contas <em>acertadas.</em></h2>
+  <p class="cta-sub">Crie sua conta grátis em menos de dois minutos.</p>
+  <div class="cta-actions">
+    <a href="/accounts/register/" class="pill pill-accent" style="padding:14px 32px;font-size:16px;">Criar conta grátis</a>
+    <a href="/accounts/login/" class="pill pill-ghost" style="padding:14px 32px;font-size:16px;">Já tenho conta</a>
   </div>
-  <p style="margin-top:16px;font-size:13px;color:rgba(246,245,241,.3);">Sem cartão de crédito. Sem anúncio. Sem drama.</p>
+  <p class="cta-note">Sem cartão de crédito &nbsp;&middot;&nbsp; Sem anúncios &nbsp;&middot;&nbsp; Sem drama</p>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <a href="/" class="nav-logo" style="text-decoration:none;">
-    <div class="logo-pill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C5 2 3 4 3 6.5c0 1.8 1 3.3 2.5 4L5 14h6l-.5-3.5C12 9.8 13 8.3 13 6.5 13 4 11 2 8 2z" fill="#c8f542"/></svg></div>
+  <a href="/" class="nav-logo" style="text-decoration:none;color:var(--text);">
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1C4.2 1 2 3.2 2 5.7c0 1.6.9 3 2.3 3.7L3.8 13h6.4l-.5-3.6C11.1 8.7 12 7.3 12 5.7 12 3.2 9.8 1 7 1z" fill="#0a0a08"/>
+      </svg>
+    </div>
     Settl
   </a>
-  <div style="display:flex;gap:20px;">
-    <a href="#como-funciona" style="color:var(--muted);text-decoration:none;font-size:13px;">Como funciona</a>
-    <a href="#precos" style="color:var(--muted);text-decoration:none;font-size:13px;">Preços</a>
-    <a href="/accounts/login/" style="color:var(--muted);text-decoration:none;font-size:13px;">Entrar</a>
+  <div class="footer-links">
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#precos">Preços</a>
+    <a href="/accounts/login/">Entrar</a>
+    <a href="/accounts/register/">Criar conta</a>
   </div>
-  <div style="font-size:12px;">Feito no Brasil 🇧🇷 · © 2026 Settl</div>
+  <div class="footer-copy">Feito no Brasil &nbsp;🇧🇷&nbsp; © 2026 Settl</div>
 </footer>
 
 <script>
-// Nav scroll
 window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
 });
 
-// Reveal on scroll
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-}, { threshold: 0.08 });
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.06 });
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-// PWA Service Worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
