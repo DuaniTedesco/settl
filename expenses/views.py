@@ -13,6 +13,28 @@ def _get_group_and_membership(request, group_pk):
     return group, membership
 
 
+def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('landing')
+    memberships = request.user.memberships.filter(is_active=True).select_related('group')
+    pending_settlements = Settlement.objects.filter(
+        receiver=request.user, status='pending'
+    ).select_related('payer', 'group')
+    my_settlements = Settlement.objects.filter(
+        payer=request.user, status='pending'
+    ).select_related('receiver', 'group')
+    recent_expenses = Expense.objects.filter(
+        group__memberships__user=request.user,
+        group__memberships__is_active=True
+    ).select_related('paid_by', 'group').order_by('-created_at')[:10]
+    return render(request, 'dashboard.html', {
+        'memberships': memberships,
+        'pending_settlements': pending_settlements,
+        'my_settlements': my_settlements,
+        'recent_expenses': recent_expenses,
+    })
+
+
 @login_required
 def expense_create(request, group_pk):
     group, membership = _get_group_and_membership(request, group_pk)
@@ -90,24 +112,3 @@ def settlement_confirm(request, pk):
             messages.warning(request, 'Acerto marcado como disputado.')
         return redirect('group_detail', pk=settlement.group.pk)
     return render(request, 'expenses/settlement_confirm.html', {'settlement': settlement})
-
-
-@login_required
-def dashboard(request):
-    memberships = request.user.memberships.filter(is_active=True).select_related('group')
-    pending_settlements = Settlement.objects.filter(
-        receiver=request.user, status='pending'
-    ).select_related('payer', 'group')
-    my_settlements = Settlement.objects.filter(
-        payer=request.user, status='pending'
-    ).select_related('receiver', 'group')
-    recent_expenses = Expense.objects.filter(
-        group__memberships__user=request.user,
-        group__memberships__is_active=True
-    ).select_related('paid_by', 'group').order_by('-created_at')[:10]
-    return render(request, 'dashboard.html', {
-        'memberships': memberships,
-        'pending_settlements': pending_settlements,
-        'my_settlements': my_settlements,
-        'recent_expenses': recent_expenses,
-    })
